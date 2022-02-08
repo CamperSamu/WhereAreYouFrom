@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.campersamu.shoutout.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "AppendModNameToPacketBuffer",
+    "GetOgItemFromPacketBuffer"
+  ]
+}

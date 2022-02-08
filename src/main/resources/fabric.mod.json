@@ -1,29 +1,29 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "shoutout",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Where Are You From?",
+  "description": "A serverside Fabric mod that adds the corresponding mod name to items in the lore.",
   "authors": [
-    "Me!"
+    "Camper_Samu"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/CamperSamu/CamperSamu",
+    "sources": "https://github.com/CamperSamu/WhereAreYouFrom"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/shoutout/icon.png",
 
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "net.fabricmc.example.ExampleMod"
+    "server": [
+      "com.campersamu.shoutout.Init"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "shoutout.mixins.json"
   ],
 
   "depends": {
@@ -33,6 +33,6 @@
     "java": ">=17"
   },
   "suggests": {
-    "another-mod": "*"
+    "baila": "*"
   }
 }
