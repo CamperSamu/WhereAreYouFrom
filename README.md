@@ -9,6 +9,8 @@ If you host a serverside modpack (via [PolyMC](https://github.com/TheEpicBlock/P
 ![item tooltip without lore](https://cdn.discordapp.com/attachments/729827668559659019/940359829157978152/unknown.png)
 ![item tooltip with lore](https://cdn.discordapp.com/attachments/729827668559659019/940563747959889960/unknown.png)
 
+## Bleeding edge builds
+Upstream builds are available in via [GitHub Actions](https://github.com/CamperSamu/WhereAreYouFrom/actions).
 
 ## Setup
 
