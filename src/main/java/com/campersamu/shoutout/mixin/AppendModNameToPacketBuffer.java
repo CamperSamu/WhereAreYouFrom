@@ -36,7 +36,11 @@ public class AppendModNameToPacketBuffer {
 
         NbtCompound display = itemStack.getOrCreateSubNbt(DISPLAY_KEY);
         NbtList list = display.contains(LORE_KEY, NbtElement.LIST_TYPE) ? display.getList(LORE_KEY, NbtElement.STRING_TYPE) : new NbtList();
-        list.add(NbtString.of(toJson(new LiteralText(getModName(item)).formatted(Formatting.BLUE, Formatting.ITALIC))));
+
+        NbtString modText = NbtString.of(toJson(new LiteralText(getModName(item)).formatted(Formatting.BLUE, Formatting.ITALIC)));
+
+        if (!list.contains(modText))
+            list.add(modText);
 
         display.put(LORE_KEY, list);
         return itemStack;
