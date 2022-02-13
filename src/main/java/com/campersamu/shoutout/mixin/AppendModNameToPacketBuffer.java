@@ -26,8 +26,8 @@ import static net.minecraft.text.Text.Serializer.toJson;
 @Mixin(value = PacketByteBuf.class, priority = 5000)
 public class AppendModNameToPacketBuffer {
     @ModifyVariable(method = "writeItemStack(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/network/PacketByteBuf;", at = @At("HEAD"), argsOnly = true)
-    private ItemStack alterLore(ItemStack stack) {
-        return appendModName(stack);
+    private ItemStack alterLore(ItemStack inStack) {
+        return appendModName(inStack.copy());   //We have to copy the ItemStack, otherwise it will cause a Concurrent Modification Exception with more than one player
     }
 
     private ItemStack appendModName(ItemStack itemStack) {
