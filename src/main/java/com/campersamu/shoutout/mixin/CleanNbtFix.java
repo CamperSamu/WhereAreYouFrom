@@ -21,20 +21,22 @@ import static net.minecraft.text.Text.Serialization.toJsonString;
 import static net.minecraft.text.Text.literal;
 
 @Mixin(ServerPlayerInteractionManager.class)
-public class CleanNbtFix {
+public abstract class CleanNbtFix {
     @Shadow
     @Final
     protected ServerPlayerEntity player;
 
     @Inject(method = "setGameMode", at = @At("RETURN"))
     protected void setGameMode(GameMode gameMode, GameMode previousGameMode, CallbackInfo ci) {
-        for (ItemStack itemStack : player.getInventory().main) {
+        final var inventory = player.getInventory();
+        for (ItemStack itemStack : inventory.main) {
             cleanNbt(itemStack);
         }
-        cleanNbt(player.getInventory().offHand.get(0));
-        for (ItemStack itemStack : player.getInventory().armor) {
+        cleanNbt(inventory.offHand.get(0));
+        for (ItemStack itemStack : inventory.armor) {
             cleanNbt(itemStack);
         }
+        player.getInventory().markDirty();
     }
 
     @Unique
