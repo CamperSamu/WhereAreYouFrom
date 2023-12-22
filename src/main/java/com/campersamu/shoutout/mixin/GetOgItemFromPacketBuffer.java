@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(value = PacketByteBuf.class, priority = 500)
+@Mixin(value = PacketByteBuf.class, priority = 300)
 public class GetOgItemFromPacketBuffer implements OriginalItemDuck {
     @Unique
     ItemStack originalItem = ItemStack.EMPTY;
