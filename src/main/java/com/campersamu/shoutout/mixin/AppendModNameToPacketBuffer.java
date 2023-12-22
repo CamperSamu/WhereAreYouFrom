@@ -1,5 +1,6 @@
 package com.campersamu.shoutout.mixin;
 
+import com.campersamu.shoutout.duck.OriginalItemDuck;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -25,11 +26,9 @@ import static net.minecraft.text.Text.literal;
 
 @Mixin(value = PacketByteBuf.class, priority = 5000)
 public class AppendModNameToPacketBuffer {
-    @Unique ItemStack toAlter;
 
     @ModifyVariable(method = "writeItemStack(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/network/PacketByteBuf;", at = @At("HEAD"), argsOnly = true)
     private ItemStack alterLore(ItemStack inStack) {
-        toAlter = inStack;
         return inStack;
     }
 
@@ -43,7 +42,7 @@ public class AppendModNameToPacketBuffer {
     private PacketByteBuf appendModNameToNBT(PacketByteBuf instance, NbtElement nbt){
         if (nbt == null) nbt = new NbtCompound();
         if (nbt instanceof NbtCompound compound)
-            return instance.writeNbt(appendModName(compound, toAlter.getItem()));
+            return instance.writeNbt(appendModName(compound, ((OriginalItemDuck)this).whereAreYouFrom$getOgItemStack().getItem()));
         return instance;
     }
 

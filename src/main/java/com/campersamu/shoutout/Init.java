@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static com.campersamu.shoutout.Config.getMappedId;
+
 public class Init implements DedicatedServerModInitializer {
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
@@ -25,7 +27,7 @@ public class Init implements DedicatedServerModInitializer {
 	public static @NotNull String getModName(Item item) {
 		String modName = "Unknown";
 
-		Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(Registries.ITEM.getId(item).getNamespace());
+		Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(getMappedId(Registries.ITEM.getId(item).getNamespace()));
 		if (mod.isPresent()) {
 			modName = mod.get().getMetadata().getName();
 		}
