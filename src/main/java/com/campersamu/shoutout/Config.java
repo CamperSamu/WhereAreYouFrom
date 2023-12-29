@@ -91,9 +91,7 @@ public final class Config {
      */
     @ApiStatus.Internal
     public static boolean annotateVanilla() {
-        var flag = FLAGS.getOrDefault(ANNOTATE_VANILLA_KEY, true);
-        System.out.println(flag);
-        return Boolean.parseBoolean(flag.toString());
+        return Boolean.parseBoolean(FLAGS.getOrDefault(ANNOTATE_VANILLA_KEY, true).toString());
     }
 
     /**
