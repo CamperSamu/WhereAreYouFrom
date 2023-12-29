@@ -44,6 +44,7 @@ public class AppendModNameToPacketBuffer {
         if (nbt instanceof NbtCompound compound)
             return instance.writeNbt(appendModName(compound, ((OriginalItemDuck)this).whereAreYouFrom$getOgItemStack().getItem()));
         return instance;
+        return instance.writeNbt(nbt);
     }
 
     @Unique
