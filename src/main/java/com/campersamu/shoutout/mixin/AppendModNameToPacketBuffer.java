@@ -1,13 +1,13 @@
 package com.campersamu.shoutout.mixin;
 
 import com.campersamu.shoutout.duck.OriginalItemDuck;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static com.campersamu.shoutout.Config.*;
 import static com.campersamu.shoutout.Init.getModName;
+import static java.util.Objects.requireNonNullElse;
 import static net.minecraft.item.ItemStack.DISPLAY_KEY;
 import static net.minecraft.item.ItemStack.LORE_KEY;
 import static net.minecraft.nbt.NbtElement.STRING_TYPE;
@@ -59,6 +60,15 @@ public class AppendModNameToPacketBuffer {
         // Get the NBT structure
         NbtCompound display = nbtCompound.getCompound(DISPLAY_KEY);
         NbtList list = display.getList(LORE_KEY, STRING_TYPE);
+
+        if (IGNORE_LIST_ENABLED) {
+            for (NbtElement element : list) {
+                if (!(element instanceof NbtString str)) continue;
+                if (IGNORE_LIST.contains(requireNonNullElse(Text.Serialization.fromJson(str.asString()), literal("")).getString())) {
+                    return nbtCompound;
+                }
+            }
+        }
 
         // Append mod name
         NbtString modText = NbtString.of(toJsonString(literal(modName).formatted(Formatting.BLUE, Formatting.ITALIC)));
