@@ -14,24 +14,24 @@ import java.util.Optional;
 import static com.campersamu.shoutout.Config.getMappedId;
 
 public class Init implements DedicatedServerModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-	public static final Logger LOGGER = LoggerFactory.getLogger("Where Are You From?");
+    // This logger is used to write text to the console and the log file.
+    // It is considered best practice to use your mod id as the logger's name.
+    // That way, it's clear which mod wrote info, warnings, and errors.
+    public static final Logger LOGGER = LoggerFactory.getLogger("Where Are You From?");
 
-	@Override
-	public void onInitializeServer() {
-		LOGGER.info("Ooh you already know who it is...");
-	}
+    @Override
+    public void onInitializeServer() {
+        LOGGER.info("Ooh you already know who it is...");
+    }
 
-	public static @NotNull String getModName(Item item) {
-		String modName = "Unknown";
+    public static @NotNull String getModName(Item item) {
+        String modName = "Unknown";
 
-		Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(getMappedId(Registries.ITEM.getId(item).getNamespace()));
-		if (mod.isPresent()) {
-			modName = mod.get().getMetadata().getName();
-		}
+        Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(getMappedId(Registries.ITEM.getId(item).getNamespace()));
+        if (mod.isPresent()) {
+            modName = mod.get().getMetadata().getName();
+        }
 
-		return modName;
-	}
+        return modName;
+    }
 }

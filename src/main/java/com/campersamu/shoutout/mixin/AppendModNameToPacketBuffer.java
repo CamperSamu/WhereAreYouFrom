@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import static com.campersamu.shoutout.Config.*;
 import static com.campersamu.shoutout.Init.getModName;
 import static net.minecraft.item.ItemStack.DISPLAY_KEY;
 import static net.minecraft.item.ItemStack.LORE_KEY;
@@ -41,23 +42,32 @@ public class AppendModNameToPacketBuffer {
     )
     private PacketByteBuf appendModNameToNBT(PacketByteBuf instance, NbtElement nbt){
         if (nbt == null) nbt = new NbtCompound();
-        if (nbt instanceof NbtCompound compound)
-            return instance.writeNbt(appendModName(compound, ((OriginalItemDuck)this).whereAreYouFrom$getOgItemStack().getItem()));
-        return instance;
+        if (nbt instanceof NbtCompound compound) {
+            //region Get the mod name & check flags
+            final var modName = getModName(((OriginalItemDuck) this).whereAreYouFrom$getOgItemStack().getItem());
+            if (checkFlags(modName)) return instance.writeNbt(nbt); // skip if flag triggered
+            //endregion
+
+            return instance.writeNbt(appendModName(compound, modName));
+        }
         return instance.writeNbt(nbt);
     }
 
     @Unique
     @Contract("_, _ -> param1")
-    private @NotNull NbtCompound appendModName(@NotNull NbtCompound nbtCompound, Item item) {
+    private @NotNull NbtCompound appendModName(@NotNull NbtCompound nbtCompound, @NotNull final String modName) {
+        // Get the NBT structure
         NbtCompound display = nbtCompound.getCompound(DISPLAY_KEY);
         NbtList list = display.getList(LORE_KEY, STRING_TYPE);
 
-        NbtString modText = NbtString.of(toJsonString(literal(getModName(item)).formatted(Formatting.BLUE, Formatting.ITALIC)));
+        // Append mod name
+        NbtString modText = NbtString.of(toJsonString(literal(modName).formatted(Formatting.BLUE, Formatting.ITALIC)));
 
+        // Check if the mod name is already present to avoid duplication (edge-case proofing)
         if (!list.contains(modText))
             list.add(modText);
 
+        // Update Item Lore / NBT
         display.put(LORE_KEY, list);
         nbtCompound.put(DISPLAY_KEY, display);
 
