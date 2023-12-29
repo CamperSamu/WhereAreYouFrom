@@ -21,8 +21,9 @@ public final class Config {
     public static final String
             ANNOTATE_VANILLA_KEY = "annotateVanilla",
             ANNOTATE_UNKNOWN_KEY = "annotateUnknown",
+            UNKNOWN_TOOLTIP_NAME_KEY = "unknownTooltipName",
             MINECRAFT_KEY = "Minecraft",
-            UNKNOWN_KEY = "Unknown";
+            UNKNOWN_KEY /* = FLAGS.UNKNOWN_KEY */;
 
     public static final boolean ANNOTATE_VANILLA, ANNOTATE_UNKNOWN;
 
@@ -34,6 +35,7 @@ public final class Config {
         load();
         ANNOTATE_VANILLA = annotateVanilla();
         ANNOTATE_UNKNOWN = annotateUnknown();
+        UNKNOWN_KEY = FLAGS.getProperty(UNKNOWN_TOOLTIP_NAME_KEY, "Unknown");
     }
 
     private static void save() {
@@ -54,12 +56,15 @@ public final class Config {
             FLAGS.store(out, """
                     - Where Are You From - Configuration Flags -#
                     -      Remove '#' to uncomment a line      -#
-                    
+
                     - Determines whether or not vanilla items have the "Minecraft" lore annotation -#
                     annotateVanilla = true
-                    
+
                     - Determines whether or not unknown mod items have the "Unknown" lore annotation -#
                     annotateUnknown = true
+
+                    - Configure the  "Unknown" lore annotation display name -#
+                    unknownTooltipName = Unknown
                     """);
         } catch (IOException ignored) {}
     }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static com.campersamu.shoutout.Config.UNKNOWN_KEY;
 import static com.campersamu.shoutout.Config.getMappedId;
 
 public class Init implements DedicatedServerModInitializer {
@@ -25,7 +26,7 @@ public class Init implements DedicatedServerModInitializer {
     }
 
     public static @NotNull String getModName(Item item) {
-        String modName = "Unknown";
+        String modName = UNKNOWN_KEY;
 
         Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(getMappedId(Registries.ITEM.getId(item).getNamespace()));
         if (mod.isPresent()) {
