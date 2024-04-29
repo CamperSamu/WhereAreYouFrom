@@ -1,12 +1,14 @@
 package com.campersamu.shoutout.mixin;
 
 import com.campersamu.shoutout.duck.OriginalItemDuck;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.ComponentMapImpl;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Contract;
@@ -14,74 +16,71 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.campersamu.shoutout.Config.*;
 import static com.campersamu.shoutout.Init.getModName;
-import static java.util.Objects.requireNonNullElse;
-import static net.minecraft.item.ItemStack.DISPLAY_KEY;
-import static net.minecraft.item.ItemStack.LORE_KEY;
-import static net.minecraft.nbt.NbtElement.STRING_TYPE;
-import static net.minecraft.text.Text.Serialization.toJsonString;
 import static net.minecraft.text.Text.literal;
 
-@Mixin(value = PacketByteBuf.class, priority = 5000)
+
+@Mixin(targets = "net/minecraft/item/ItemStack$1", priority = 5000)
 public class AppendModNameToPacketBuffer {
 
-    @ModifyVariable(method = "writeItemStack(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/network/PacketByteBuf;", at = @At("HEAD"), argsOnly = true)
-    private ItemStack alterLore(ItemStack inStack) {
-        return inStack;
-    }
+    @Redirect(method = "encode(Lnet/minecraft/network/RegistryByteBuf;Lnet/minecraft/item/ItemStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/codec/PacketCodec;encode(Ljava/lang/Object;Ljava/lang/Object;)V", ordinal = 1))
+    private void shoutout$appendStuff(@NotNull PacketCodec<RegistryByteBuf, ComponentChanges> instance, Object _buf, Object _changes, @Local(argsOnly = true) ItemStack itemStack) {
+        // Safely cast the two values
+        if (!(_buf instanceof RegistryByteBuf buf && _changes instanceof ComponentChanges changes)) return;
 
-    @Redirect(
-            method = "writeItemStack",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/network/PacketByteBuf;writeNbt(Lnet/minecraft/nbt/NbtElement;)Lnet/minecraft/network/PacketByteBuf;"
-            )
-    )
-    private PacketByteBuf appendModNameToNBT(PacketByteBuf instance, NbtElement nbt){
-        if (nbt == null) nbt = new NbtCompound();
-        if (nbt instanceof NbtCompound compound) {
-            //region Get the mod name & check flags
-            final var modName = getModName(((OriginalItemDuck) this).whereAreYouFrom$getOgItemStack().getItem());
-            if (checkFlags(modName)) return instance.writeNbt(nbt); // skip if flag triggered
-            //endregion
-
-            return instance.writeNbt(appendModName(compound, modName));
+        // Get mod name
+        final var modName = getModName(((OriginalItemDuck) this).whereAreYouFrom$getOgItemStack().getItem());
+        // Avoid manipulation if a flag is triggered
+        if (checkFlags(modName)) {
+            instance.encode(buf, changes);
+            return;
         }
-        return instance.writeNbt(nbt);
+
+        // Add the mod name and a lore component to the item stack
+        final ComponentMapImpl cmap = appendModName(ComponentMapImpl.create(itemStack.getItem().getComponents(), changes), modName);
+
+        // Encode the manipulated component map
+        instance.encode(buf, cmap.getChanges());
     }
 
     @Unique
     @Contract("_, _ -> param1")
-    private @NotNull NbtCompound appendModName(@NotNull NbtCompound nbtCompound, @NotNull final String modName) {
-        // Get the NBT structure
-        NbtCompound display = nbtCompound.getCompound(DISPLAY_KEY);
-        NbtList list = display.getList(LORE_KEY, STRING_TYPE);
+    private @NotNull ComponentMapImpl appendModName(@NotNull final ComponentMapImpl cmap, @NotNull final String modName) {
+        // Get the lore component
+        var lore = cmap.getOrDefault(DataComponentTypes.LORE, new LoreComponent(List.of()));
 
+        // Check if the ignore list is enabled
         if (IGNORE_LIST_ENABLED) {
-            for (NbtElement element : list) {
-                if (!(element instanceof NbtString str)) continue;
-                if (IGNORE_LIST.contains(requireNonNullElse(Text.Serialization.fromJson(str.asString()), literal("")).getString())) {
-                    return nbtCompound;
+            for (Text text : lore.lines()) {
+                // If so, check the lore lines if something included in the ignore list is found and avoid further actions
+                if (IGNORE_LIST.contains(text.getString())) {
+                    return cmap;
                 }
             }
         }
 
         // Append mod name
-        NbtString modText = NbtString.of(toJsonString(literal(modName).formatted(Formatting.BLUE, Formatting.ITALIC)));
+        final var modText = literal(modName).formatted(Formatting.BLUE, Formatting.ITALIC);
 
         // Check if the mod name is already present to avoid duplication (edge-case proofing)
-        if (!list.contains(modText))
-            list.add(modText);
+        if (!lore.styledLines().contains(modText))
+            lore = lore.with(modText); // Add the lore (record since 1.20.5, it returns an updated version of itself)
+        else {
+            final var loreList = new ArrayList<>(lore.styledLines());
+            loreList.remove(modText);
+            lore = new LoreComponent(loreList);
+        }
 
-        // Update Item Lore / NBT
-        display.put(LORE_KEY, list);
-        nbtCompound.put(DISPLAY_KEY, display);
+        // Update the ComponentMap
+        cmap.set(DataComponentTypes.LORE, lore);
 
-        return nbtCompound;
+        return cmap;
     }
 
 }
