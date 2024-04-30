@@ -6,8 +6,8 @@ A serverside Fabric mod that adds the corresponding mod name to items in the lor
 ## Why would you need this?
 If you host a serverside modpack (via [PolyMc](https://github.com/TheEpicBlock/PolyMc) for example) mods like [REI](https://github.com/shedaniel/RoughlyEnoughItems) won't display the right mod name inside item tooltips; this mod replicates the intended behaviour, even for Vanilla clients.
 
-![item tooltip without lore](https://cdn.discordapp.com/attachments/729827668559659019/940359829157978152/unknown.png)
-![item tooltip with lore](https://cdn.discordapp.com/attachments/729827668559659019/940563747959889960/unknown.png)
+![item tooltip without lore](https://cdn.modrinth.com/data/VA15PhUc/images/acae69a4fb992c31a40a7928dfe18e0c0069e0bb.png)
+![item tooltip with lore](https://cdn.modrinth.com/data/VA15PhUc/images/fd2044e47ce7238dc96451377083a7533effcf45.png)
 
 ## Troubleshooting
 > ### I can't join my server when I add this mod
